@@ -362,7 +362,7 @@ from kivymd.font_definitions import theme_font_styles
 from kivymd.material_resources import DEVICE_TYPE
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.label import MDIcon
-
+from kivy.uix.behaviors import ButtonBehavior
 Builder.load_string(
     """
 #:import images_path kivymd.images_path
@@ -618,7 +618,7 @@ class TextfieldLabel(ThemableBehavior, Label):
         self.font_size = sp(self.theme_cls.font_styles[self.font_style][1])
 
 
-class MDTextField(ThemableBehavior, TextInput):
+class MDTextField(ThemableBehavior, ButtonBehavior, TextInput):
     helper_text = StringProperty("This field is required")
     """
     Text for ``helper_text`` mode.
