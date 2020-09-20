@@ -45,22 +45,25 @@ AndroidToast
     Test().run()
 """
 
-__all__ = ("toast",)
-
+from android import activity
 from android.runnable import run_on_ui_thread
-from jnius import autoclass, cast
+from jnius import PythonJavaClass, autoclass, cast, java_method
+from kivy.logger import Logger
 
 Toast = autoclass("android.widget.Toast")
 context = autoclass("org.kivy.android.PythonActivity").mActivity
 
-
 @run_on_ui_thread
 def toast(text, length_long=False):
+    global t
     """Displays a toast.
 
     :length_long: The amount of time (in seconds) that the toast is visible on the screen.
     """
-
+    try:
+        t.cancel()
+    except:
+        pass
     duration = Toast.LENGTH_LONG if length_long else Toast.LENGTH_SHORT
     String = autoclass("java.lang.String")
     c = cast("java.lang.CharSequence", String(text))
