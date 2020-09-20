@@ -155,26 +155,26 @@ Builder.load_string(
             rgba: self.theme_cls.divider_color
         Rectangle:
             size:
-                (self.width, dp(4)) \
+                (self.width, dp(6)) \
                 if self.orientation == "horizontal" \
-                else (dp(4), self.height)
+                else (dp(6), self.height)
             pos:
-                (self.x, self.center_y - dp(4)) \
+                (self.x, self.center_y - dp(6)) \
                 if self.orientation == "horizontal" \
-                else (self.center_x - dp(4),self.y)
+                else (self.center_x - dp(6),self.y)
         Color:
             rgba:
                 self.theme_cls.primary_color if not self.color else self.color
         Rectangle:
             size:
-                (self.width * self.value_normalized, sp(4)) \
+                (self.width * self.value_normalized, sp(6)) \
                 if self.orientation == "horizontal" \
-                else (sp(4), self.height * self.value_normalized)
+                else (sp(6), self.height * self.value_normalized)
             pos:
                 (self.width * (1 - self.value_normalized) + self.x \
-                if self.reversed else self.x + self._x, self.center_y - dp(4)) \
+                if self.reversed else self.x + self._x, self.center_y - dp(6)) \
                 if self.orientation == "horizontal" \
-                else (self.center_x - dp(4),self.height \
+                else (self.center_x - dp(6),self.height \
                 * (1 - self.value_normalized) + self.y if self.reversed \
                 else self.y)
 """
