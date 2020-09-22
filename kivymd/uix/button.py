@@ -1184,7 +1184,8 @@ class BaseFlatIconButton(MDFlatButton):
     button_label = BooleanProperty(False)
 
     def update_md_bg_color(self, instance, value):
-        self.text_color = self.theme_cls._get_primary_color()
+        if not self.disabled:
+            self.text_color = self.theme_cls._get_primary_color()
 
 
 class MDRaisedButton(
