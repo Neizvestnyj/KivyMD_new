@@ -924,12 +924,9 @@ Builder.load_string(
                             on_release: app.change_notches_color('Brown')
                     BoxLayout:
                         PrimaryColorSelector:
-                            color_name: 'Gray'
-                            on_release: app.change_notches_color('Gray')
-                    BoxLayout:
-                        PrimaryColorSelector:
                             color_name: 'BlueGray'
                             on_release: app.change_notches_color('BlueGray')
+                    BoxLayout:
                     BoxLayout:
                         MDIconButton:
                             size: dp(40), dp(40)
