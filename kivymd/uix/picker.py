@@ -819,15 +819,19 @@ Builder.load_string(
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Red'
+                            on_release: app.change_notches_color('Red')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Pink'
+                            on_release: app.change_notches_color('Pink')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Purple'
+                            on_release: app.change_notches_color('Purple')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'DeepPurple'
+                            on_release: app.change_notches_color('DeepPurple')
 
                 BoxLayout:
                     size_hint: (None, None)
@@ -840,15 +844,19 @@ Builder.load_string(
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Indigo'
+                            on_release: app.change_notches_color('Indigo')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Blue'
+                            on_release: app.change_notches_color('Blue')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'LightBlue'
+                            on_release: app.change_notches_color('LightBlue')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Cyan'
+                            on_release: app.change_notches_color('Cyan')
 
                 BoxLayout:
                     size_hint: (None, None)
@@ -862,15 +870,19 @@ Builder.load_string(
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Teal'
+                            on_release: app.change_notches_color('Teal')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Green'
+                            on_release: app.change_notches_color('Green')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'LightGreen'
+                            on_release: app.change_notches_color('LightGreen')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Lime'
+                            on_release: app.change_notches_color('Lime')
 
                 BoxLayout:
                     size_hint: (None, None)
@@ -884,15 +896,19 @@ Builder.load_string(
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Yellow'
+                            on_release: app.change_notches_color('Yellow')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Amber'
+                            on_release: app.change_notches_color('Amber')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Orange'
+                            on_release: app.change_notches_color('Orange')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'DeepOrange'
+                            on_release: app.change_notches_color('DeepOrange')
 
                 BoxLayout:
                     size_hint: (None, None)
@@ -905,12 +921,15 @@ Builder.load_string(
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Brown'
+                            on_release: app.change_notches_color('Brown')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'Gray'
+                            on_release: app.change_notches_color('Gray')
                     BoxLayout:
                         PrimaryColorSelector:
                             color_name: 'BlueGray'
+                            on_release: app.change_notches_color('BlueGray')
                     BoxLayout:
                         MDIconButton:
                             size: dp(40), dp(40)
