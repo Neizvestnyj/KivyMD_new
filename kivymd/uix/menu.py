@@ -1,616 +1,1203 @@
 """
-Components/File Manager
-=======================
+Components/Menu
+===============
 
-A simple manager for selecting directories and files.
+.. seealso::
+
+    `Material Design spec, Menus <https://material.io/components/menus>`_
+
+.. rubric:: Menus display a list of choices on temporary surfaces.
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-previous.png
+    :align: center
 
 Usage
 -----
 
 .. code-block:: python
 
-    path = '/'  # path to the directory that will be opened in the file manager
-    file_manager = MDFileManager(
-        exit_manager=self.exit_manager,  # function called when the user reaches directory tree root
-        select_path=self.select_path,  # function called when selecting a file/directory
-    )
-    file_manager.show(path)
-
-.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/file-manager.png
-    :align: center
-
-Or with ``preview`` mode:
-
-.. code-block:: python
-
-    file_manager = MDFileManager(
-        exit_manager=self.exit_manager,
-        select_path=self.select_path,
-        preview=True,
-    )
-
-.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/file-manager-previous.png
-    :align: center
-
-.. warning:: The `preview` mode is intended only for viewing images and will
-    not display other types of files.
-
-Example
--------
-
-.. code-block:: python
-
-    from kivy.core.window import Window
     from kivy.lang import Builder
 
     from kivymd.app import MDApp
-    from kivymd.uix.filemanager import MDFileManager
-    from kivymd.toast import toast
-
+    from kivymd.uix.menu import MDDropdownMenu
 
     KV = '''
-    BoxLayout:
-        orientation: 'vertical'
+    Screen:
 
-        MDToolbar:
-            title: "MDFileManager"
-            left_action_items: [['menu', lambda x: None]]
-            elevation: 10
-
-        FloatLayout:
-
-            MDRoundFlatIconButton:
-                text: "Open manager"
-                icon: "folder"
-                pos_hint: {'center_x': .5, 'center_y': .6}
-                on_release: app.file_manager_open()
+        MDRaisedButton:
+            id: button
+            text: "PRESS ME"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_release: app.menu.open()
     '''
 
 
-    class Example(MDApp):
+    class Test(MDApp):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
-            Window.bind(on_keyboard=self.events)
-            self.manager_open = False
-            self.file_manager = MDFileManager(
-                exit_manager=self.exit_manager,
-                select_path=self.select_path,
-                preview=True,
+            self.screen = Builder.load_string(KV)
+            menu_items = [{"text": f"Item {i}"} for i in range(5)]
+            self.menu = MDDropdownMenu(
+                caller=self.screen.ids.button,
+                items=menu_items,
+                width_mult=4,
             )
+            self.menu.bind(on_release=self.menu_callback)
+
+        def menu_callback(self, instance_menu, instance_menu_item):
+            print(instance_menu, instance_menu_item)
 
         def build(self):
-            return Builder.load_string(KV)
-
-        def file_manager_open(self):
-            self.file_manager.show('/')  # output manager to the screen
-            self.manager_open = True
-
-        def select_path(self, path):
-            '''It will be called when you click on the file name
-            or the catalog selection button.
-
-            :type path: str;
-            :param path: path to the selected directory or file;
-            '''
-
-            self.exit_manager()
-            toast(path)
-
-        def exit_manager(self, *args):
-            '''Called when the user reaches the root of the directory tree.'''
-
-            self.manager_open = False
-            self.file_manager.close()
-
-        def events(self, instance, keyboard, keycode, text, modifiers):
-            '''Called when buttons are pressed on the mobile device.'''
-
-            if keyboard in (1001, 27):
-                if self.manager_open:
-                    self.file_manager.back()
-            return True
+            return self.screen
 
 
-    Example().run()
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-usage.gif
+    :align: center
+
+.. Warning:: Do not create the :class:`~MDDropdownMenu` object when you open
+    the menu window. Because on a mobile device this one will be very slow!
+
+Wrong
+-----
+
+.. code-block:: python
+
+    menu = MDDropdownMenu(caller=self.screen.ids.button, items=menu_items)
+    menu.open()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-wrong.gif
+    :align: center
+
+Customization of menu item
+--------------------------
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-right.gif
+    :align: center
+
+You must create a new class that inherits from the :class:`~RightContent` class:
+
+.. code-block:: python
+
+    class RightContentCls(RightContent):
+        pass
+
+Now in the KV rule you can create your own elements that will be displayed in
+the menu item on the right:
+
+.. code-block:: kv
+
+    <RightContentCls>
+        disabled: True
+
+        MDIconButton:
+            icon: root.icon
+            user_font_size: "16sp"
+            pos_hint: {"center_y": .5}
+
+        MDLabel:
+            text: root.text
+            font_style: "Caption"
+            size_hint_x: None
+            width: self.texture_size[0]
+            text_size: None, None
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-right-detail.png
+    :align: center
+
+Now create menu items as usual, but add the key ``right_content_cls`` whose
+value is the class ``RightContentCls`` that you created:
+
+.. code-block:: python
+
+    menu_items = [
+        {
+            "right_content_cls": RightContentCls(
+                text=f"R+{i}", icon="apple-keyboard-command",
+            ),
+            "icon": "git",
+            "text": f"Item {i}",
+        }
+        for i in range(5)
+    ]
+    self.menu = MDDropdownMenu(
+        caller=self.screen.ids.button, items=menu_items, width_mult=4
+    )
+
+Full example
+------------
+
+.. code-block:: python
+
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu, RightContent
+
+    KV = '''
+    <RightContentCls>
+        disabled: True
+
+        MDIconButton:
+            icon: root.icon
+            user_font_size: "16sp"
+            pos_hint: {"center_y": .5}
+
+        MDLabel:
+            text: root.text
+            font_style: "Caption"
+            size_hint_x: None
+            width: self.texture_size[0]
+            text_size: None, None
+
+
+    Screen:
+
+        MDRaisedButton:
+            id: button
+            text: "PRESS ME"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_release: app.menu.open()
+    '''
+
+
+    class RightContentCls(RightContent):
+        pass
+
+
+    class Test(MDApp):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+            menu_items = [
+                {
+                    "right_content_cls": RightContentCls(
+                        text=f"R+{i}", icon="apple-keyboard-command",
+                    ),
+                    "icon": "git",
+                    "text": f"Item {i}",
+                }
+                for i in range(5)
+            ]
+            self.menu = MDDropdownMenu(
+                caller=self.screen.ids.button, items=menu_items, width_mult=4
+            )
+            self.menu.bind(on_release=self.menu_callback)
+
+        def menu_callback(self, instance_menu, instance_menu_item):
+            instance_menu.dismiss()
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+Menu without icons on the left
+------------------------------
+
+If you do not want to use the icons in the menu items on the left,
+then do not use the "icon" key when creating menu items:
+
+.. code-block:: python
+
+        menu_items = [
+            {
+                "right_content_cls": RightContentCls(
+                    text=f"R+{i}", icon="apple-keyboard-command",
+                ),
+                "text": f"Item {i}",
+            }
+            for i in range(5)
+        ]
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-without-icon.png
+    :align: center
+
+Item height adjustment
+----------------------
+
+.. code-block:: python
+
+        menu_items = [
+            {
+                "right_content_cls": RightContentCls(
+                    text=f"R+{i}", icon="apple-keyboard-command",
+                ),
+                "text": f"Item {i}",
+                "height": "36dp",
+                "top_pad": "10dp",
+                "bot_pad": "10dp",
+            }
+            for i in range(5)
+        ]
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-item-pad.png
+    :align: center
+
+Mixin items
+-----------
+
+.. code-block:: python
+
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu, RightContent
+
+    KV = '''
+    <RightContentCls>
+        disabled: True
+
+        MDIconButton:
+            icon: root.icon
+            user_font_size: "16sp"
+            pos_hint: {"center_y": .5}
+
+        MDLabel:
+            text: root.text
+            font_style: "Caption"
+            size_hint_x: None
+            width: self.texture_size[0]
+            text_size: None, None
+
+
+    Screen:
+
+        MDRaisedButton:
+            id: button
+            text: "PRESS ME"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_release: app.menu.open()
+    '''
+
+
+    class RightContentCls(RightContent):
+        pass
+
+
+    class Test(MDApp):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+
+            menu_items = []
+            data = [
+                {"": "Open"},
+                {},
+                {"open-in-app": "Open in app >"},
+                {"trash-can-outline": "Move to Trash"},
+                {"rename-box": "Rename"},
+                {"zip-box-outline": "Create zip"},
+                {},
+                {"": "Properties"},
+            ]
+
+            for data_item in data:
+                if data_item:
+                    if list(data_item.items())[0][1].endswith(">"):
+                        menu_items.append(
+                            {
+                                "right_content_cls": RightContentCls(
+                                    icon="menu-right-outline",
+                                ),
+                                "icon": list(data_item.items())[0][0],
+                                "text": list(data_item.items())[0][1][:-2],
+                                "height": "36dp",
+                                "top_pad": "10dp",
+                                "bot_pad": "10dp",
+                                "divider": None,
+                            }
+                        )
+                    else:
+                        menu_items.append(
+                            {
+                                "text": list(data_item.items())[0][1],
+                                "icon": list(data_item.items())[0][0],
+                                "font_style": "Caption",
+                                "height": "36dp",
+                                "top_pad": "10dp",
+                                "bot_pad": "10dp",
+                                "divider": None,
+                            }
+                        )
+                else:
+                    menu_items.append(
+                        {"viewclass": "MDSeparator", "height": 1}
+                    )
+            self.menu = MDDropdownMenu(
+                caller=self.screen.ids.button,
+                items=menu_items,
+                width_mult=4,
+            )
+            self.menu.bind(on_release=self.menu_callback)
+
+        def menu_callback(self, instance_menu, instance_menu_item):
+            print(instance_menu, instance_menu_item
+
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-mixin.png
+    :align: center
+
+Hover Behavior
+--------------
+
+.. code-block:: python
+
+    self.menu = MDDropdownMenu(
+        ...,
+        ...,
+        selected_color=self.theme_cls.primary_dark_hue,
+    )
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-with-hover.gif
+    :align: center
+
+Create submenu
+--------------
+
+.. code-block:: python
+
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu
+
+    KV = '''
+    Screen:
+
+        MDRaisedButton:
+            id: button
+            text: "PRESS ME"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_release: app.menu.open()
+    '''
+
+
+    class CustomDrop(MDDropdownMenu):
+        def set_bg_color_items(self, instance_selected_item):
+            if self.selected_color and not MDApp.get_running_app().submenu:
+                for item in self.menu.ids.box.children:
+                    if item is not instance_selected_item:
+                        item.bg_color = (0, 0, 0, 0)
+                    else:
+                        instance_selected_item.bg_color = self.selected_color
+
+
+    class Test(MDApp):
+        submenu = None
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+            menu_items = [
+                {
+                    "icon": "git",
+                    "text": f"Item {i}" if i != 3 else "Open submenu",
+                }
+                for i in range(5)
+            ]
+            self.menu = CustomDrop(
+                caller=self.screen.ids.button,
+                items=menu_items,
+                width_mult=4,
+                selected_color=self.theme_cls.bg_darkest
+            )
+            self.menu.bind(on_enter=self.check_item)
+
+        def check_item(self, menu, item):
+            if item.text == "Open submenu" and not self.submenu:
+                menu_items = [{"text": f"Item {i}"} for i in range(5)]
+                self.submenu = MDDropdownMenu(
+                    caller=item,
+                    items=menu_items,
+                    width_mult=4,
+                    selected_color=self.theme_cls.bg_darkest,
+                )
+                self.submenu.bind(on_dismiss=self.set_state_submenu)
+                self.submenu.open()
+
+        def set_state_submenu(self, *args):
+            self.submenu = None
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-submenu.gif
+    :align: center
+
+Menu with MDToolbar
+-------------------
+
+.. Warning:: The :class:`~MDDropdownMenu` does not work with the standard
+    :class:`~kivymd.uix.toolbar.MDToolbar`. You can use your own
+    ``CustomToolbar`` and bind the menu window output to its elements.
+
+.. code-block:: python
+
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu
+    from kivymd.theming import ThemableBehavior
+    from kivymd.uix.behaviors import RectangularElevationBehavior
+    from kivymd.uix.boxlayout import MDBoxLayout
+
+    KV = '''
+    <CustomToolbar>:
+        size_hint_y: None
+        height: self.theme_cls.standard_increment
+        padding: "5dp"
+        spacing: "12dp"
+
+        MDIconButton:
+            id: button_1
+            icon: "menu"
+            pos_hint: {"center_y": .5}
+            on_release: app.menu_1.open()
+
+        MDLabel:
+            text: "MDDropdownMenu"
+            pos_hint: {"center_y": .5}
+            size_hint_x: None
+            width: self.texture_size[0]
+            text_size: None, None
+            font_style: 'H6'
+
+        Widget:
+
+        MDIconButton:
+            id: button_2
+            icon: "dots-vertical"
+            pos_hint: {"center_y": .5}
+            on_release: app.menu_2.open()
+
+
+    Screen:
+
+        CustomToolbar:
+            id: toolbar
+            elevation: 10
+            pos_hint: {"top": 1}
+    '''
+
+
+    class CustomToolbar(
+        ThemableBehavior, RectangularElevationBehavior, MDBoxLayout,
+    ):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.md_bg_color = self.theme_cls.primary_color
+
+
+    class Test(MDApp):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+            self.menu_1 = self.create_menu(
+                "Button menu", self.screen.ids.toolbar.ids.button_1,
+            )
+            self.menu_2 = self.create_menu(
+                "Button dots", self.screen.ids.toolbar.ids.button_2,
+            )
+
+        def create_menu(self, text, instance):
+            menu_items = [{"icon": "git", "text": text} for i in range(5)]
+            menu = MDDropdownMenu(caller=instance, items=menu_items, width_mult=5)
+            menu.bind(on_release=self.menu_callback)
+            return menu
+
+        def menu_callback(self, instance_menu, instance_menu_item):
+            instance_menu.dismiss()
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-with-toolbar.gif
+    :align: center
+
+Position menu
+=============
+
+Bottom position
+---------------
+
+.. seealso::
+
+    :attr:`~MDDropdownMenu.position`
+
+.. code-block:: python
+
+    from kivy.clock import Clock
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu
+
+    KV = '''
+    Screen
+
+        MDTextField:
+            id: field
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            size_hint_x: None
+            width: "200dp"
+            hint_text: "Password"
+            on_focus: if self.focus: app.menu.open()
+    '''
+
+
+    class Test(MDApp):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+            menu_items = [{"icon": "git", "text": f"Item {i}"} for i in range(5)]
+            self.menu = MDDropdownMenu(
+                caller=self.screen.ids.field,
+                items=menu_items,
+                position="bottom",
+                width_mult=4,
+            )
+            self.menu.bind(on_release=self.set_item)
+
+        def set_item(self, instance_menu, instance_menu_item):
+            def set_item(interval):
+                self.screen.ids.field.text = instance_menu_item.text
+                instance_menu.dismiss()
+            Clock.schedule_once(set_item, 0.5)
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-position.gif
+    :align: center
+
+Center position
+---------------
+
+.. code-block:: python
+
+    from kivy.lang import Builder
+
+    from kivymd.app import MDApp
+    from kivymd.uix.menu import MDDropdownMenu
+
+    KV = '''
+    Screen
+
+        MDDropDownItem:
+            id: drop_item
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            text: 'Item 0'
+            on_release: app.menu.open()
+    '''
+
+
+    class Test(MDApp):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.screen = Builder.load_string(KV)
+            menu_items = [{"icon": "git", "text": f"Item {i}"} for i in range(5)]
+            self.menu = MDDropdownMenu(
+                caller=self.screen.ids.drop_item,
+                items=menu_items,
+                position="center",
+                width_mult=4,
+            )
+            self.menu.bind(on_release=self.set_item)
+
+        def set_item(self, instance_menu, instance_menu_item):
+            self.screen.ids.drop_item.set_item(instance_menu_item.text)
+            self.menu.dismiss()
+
+        def build(self):
+            return self.screen
+
+
+    Test().run()
+
+.. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/menu-position-center.gif
+    :align: center
 """
 
-__all__ = ("MDFileManager",)
+__all__ = ("MDDropdownMenu", "RightContent")
 
-import locale
-import os
-
+from kivy.animation import Animation
+from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import (
-    BooleanProperty,
     ListProperty,
     NumericProperty,
     ObjectProperty,
     OptionProperty,
     StringProperty,
 )
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.modalview import ModalView
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.scrollview import ScrollView
 
-from kivymd import images_path
+import kivymd.material_resources as m_res
 from kivymd.theming import ThemableBehavior
-from kivymd.uix.behaviors import CircularRippleBehavior
+from kivymd.uix.behaviors import HoverBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.list import BaseListItem, ContainerSupport
-from kivymd.utils.fitimage import FitImage
+from kivymd.uix.list import (
+    IRightBodyTouch,
+    OneLineAvatarIconListItem,
+    OneLineListItem,
+    OneLineRightIconListItem,
+)
 
-ACTIVITY_MANAGER = """
-#:import os os
-
-
-<BodyManager@BoxLayout>
-    icon: "folder"
-    path: ""
-    background_normal: ""
-    background_down: ""
-    dir_or_file_name: ""
-    events_callback: lambda x: None
-    orientation: "vertical"
-
-    ModifiedOneLineIconListItem:
-        text: root.dir_or_file_name
-        on_release: root.events_callback(root.path)
-
-        IconLeftWidget:
-            icon: root.icon
-            theme_text_color: "Custom"
-            text_color: self.theme_cls.primary_color
-
-    MDSeparator:
+Builder.load_string(
+    """
+#:import STD_INC kivymd.material_resources.STANDARD_INCREMENT
 
 
-<LabelContent@MDLabel>
-    size_hint_y: None
-    height: self.texture_size[1]
-    shorten: True
-    shorten_from: "center"
-    halign: "center"
-    text_size: self.width, None
+<RightContent>
+    adaptive_width: True
 
 
-<BodyManagerWithPreview>
-    name: ""
-    path: ""
-    realpath: ""
-    type: "folder"
-    events_callback: lambda x: None
-    orientation: "vertical"
-    size_hint_y: None
-    hright: root.height
-    padding: dp(20)
+<MDMenuItemIcon>
 
-    IconButton:
-        mipmap: True
-        source: root.path
-        on_release:
-            root.events_callback(\
-            os.path.join(root.path if root.type != "folder" else root.realpath, \
-            root.name))
-
-    LabelContent:
-        text: root.name
+    IconLeftWidget:
+        id: icon_widget
+        icon: root.icon
 
 
-<MDFileManager>
-    md_bg_color: root.theme_cls.bg_normal
+<MDMenu>
+    size_hint: None, None
+    width: root.width_mult * STD_INC
+    bar_width: 0
 
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(5)
-
-        MDToolbar:
-            id: toolbar
-            title: root.current_path
-            right_action_items: [["close-box", lambda x: root.exit_manager(1)]]
-            left_action_items: [["chevron-left", lambda x: root.back()]]
-            elevation: 10
-
-        RecycleView:
-            id: rv
-            key_viewclass: "viewclass"
-            key_size: "height"
-            bar_width: dp(4)
-            bar_color: root.theme_cls.primary_color
-            #on_scroll_stop: root._update_list_images()
-
-            RecycleGridLayout:
-                padding: dp(10)
-                cols: 3 if root.preview else 1
-                default_size: None, dp(48)
-                default_size_hint: 1, None
-                size_hint_y: None
-                height: self.minimum_height
-                orientation: "vertical"
+    MDGridLayout:
+        id: box
+        cols: 1
+        adaptive_height: True
 
 
-<ModifiedOneLineIconListItem>
+<MDDropdownMenu>
 
-    BoxLayout:
-        id: _left_container
+    MDCard:
+        id: card
+        elevation: 10
         size_hint: None, None
-        x: root.x + dp(16)
-        y: root.y + root.height / 2 - self.height / 2
-        size: dp(48), dp(48)
+        size: md_menu.size
+        pos: md_menu.pos
+        md_bg_color: 0, 0, 0, 0
+        opacity: md_menu.opacity
+
+        canvas:
+            Clear
+            Color:
+                rgba: root.background_color if root.background_color else root.theme_cls.bg_dark
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius: root.radius
+
+        MDMenu:
+            id: md_menu
+            drop_cls: root
+            width_mult: root.width_mult
+            size_hint: None, None
+            size: 0, 0
+            opacity: 0
 """
+)
 
 
-class BodyManagerWithPreview(MDBoxLayout):
-    """Base class for folder icons and thumbnails images in ``preview`` mode.
+class RightContent(IRightBodyTouch, MDBoxLayout):
+    text = StringProperty()
+    """
+    Text item.
+
+    :attr:`text` is a :class:`~kivy.properties.StringProperty`
+    and defaults to `''`.
     """
 
-
-class IconButton(CircularRippleBehavior, ButtonBehavior, FitImage):
-    """Folder icons/thumbnails images in ``preview`` mode."""
-
-
-class FloatButton(AnchorLayout):
-    callback = ObjectProperty()
-    md_bg_color = ListProperty([1, 1, 1, 1])
     icon = StringProperty()
-
-
-class ModifiedOneLineIconListItem(ContainerSupport, BaseListItem):
-    _txt_left_pad = NumericProperty("72dp")
-    _txt_top_pad = NumericProperty("16dp")
-    _txt_bot_pad = NumericProperty("15dp")
-    _num_lines = 1
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.height = dp(48)
-
-
-class MDFileManager(ThemableBehavior, MDFloatLayout):
-    icon = StringProperty("check")
     """
-    The icon that will be used on the directory selection button.
+    Icon item.
 
-    :attr:`icon` is an :class:`~kivy.properties.StringProperty`
-    and defaults to `check`.
+    :attr:`icon` is a :class:`~kivy.properties.StringProperty`
+    and defaults to `''`.
     """
 
-    icon_folder = StringProperty(f"{images_path}folder.png")
-    """
-    The icon that will be used for folder icons when using ``preview = True``.
 
-    :attr:`icon` is an :class:`~kivy.properties.StringProperty`
-    and defaults to `check`.
+class MDMenuItemBase(HoverBehavior):
+    """
+    Base class for MenuItem
     """
 
-    exit_manager = ObjectProperty(lambda x: None)
-    """
-    Function called when the user reaches directory tree root.
+    def on_enter(self):
+        self.parent.parent.drop_cls.set_bg_color_items(self)
+        self.parent.parent.drop_cls.dispatch("on_enter", self)
 
-    :attr:`exit_manager` is an :class:`~kivy.properties.ObjectProperty`
-    and defaults to `lambda x: None`.
+    def on_leave(self):
+        self.parent.parent.drop_cls.dispatch("on_leave", self)
+
+
+class MDMenuItemIcon(MDMenuItemBase, OneLineAvatarIconListItem):
+    icon = StringProperty()
+    """
+    Icon item.
+
+    :attr:`icon` is a :class:`~kivy.properties.StringProperty`
+    and defaults to `''`.
     """
 
-    select_path = ObjectProperty(lambda x: None)
-    """
-    Function, called when selecting a file/directory.
 
-    :attr:`select_path` is an :class:`~kivy.properties.ObjectProperty`
-    and defaults to `lambda x: None`.
+class MDMenuItem(MDMenuItemBase, OneLineListItem):
+
+    pass
+
+
+class MDMenuItemRight(MDMenuItemBase, OneLineRightIconListItem):
+
+    pass
+
+
+class MDMenu(ScrollView):
+    width_mult = NumericProperty(1)
+    """
+    See :attr:`~MDDropdownMenu.width_mult`.
     """
 
-    ext = ListProperty()
+    drop_cls = ObjectProperty()
     """
-    List of file extensions to be displayed in the manager.
-    For example, `['.py', '.kv']` - will filter out all files,
-    except python scripts and Kv Language.
+    See :class:`~MDDropdownMenu` class.
+    """
 
-    :attr:`ext` is an :class:`~kivy.properties.ListProperty`
+
+class MDDropdownMenu(ThemableBehavior, FloatLayout):
+    """
+    :Events:
+        :attr:`on_enter`
+            Call when mouse enter the bbox of item menu.
+        :attr:`on_leave`
+            Call when the mouse exit the item menu.
+        :attr:`on_dismiss`
+            Call when closes menu.
+        :attr:`on_release`
+            The method that will be called when you click menu items.
+    """
+
+    selected_color = ListProperty()
+    """Custom color (``rgba`` format) for list item when hover behavior occurs.
+
+    :attr:`selected_color` is a :class:`~kivy.properties.ListProperty`
     and defaults to `[]`.
     """
 
-    search = OptionProperty("all", options=["all", "dirs", "files"])
+    items = ListProperty()
     """
-    It can take the values 'all' 'dirs' 'files' - display only directories
-    or only files or both them. By default, it displays folders, and files.
-    Available options are: `'all'`, `'dirs'`, `'files'`.
+    See :attr:`~kivy.uix.recycleview.RecycleView.data`.
 
-    :attr:`search` is an :class:`~kivy.properties.OptionProperty`
-    and defaults to `all`.
+    :attr:`items` is a :class:`~kivy.properties.ListProperty`
+    and defaults to `[]`.
     """
 
-    current_path = StringProperty(os.getcwd())
+    width_mult = NumericProperty(1)
     """
-    Current directory.
+    This number multiplied by the standard increment (56dp on mobile,
+    64dp on desktop, determines the width of the menu items.
 
-    :attr:`current_path` is an :class:`~kivy.properties.StringProperty`
-    and defaults to `/`.
-    """
+    If the resulting number were to be too big for the application Window,
+    the multiplier will be adjusted for the biggest possible one.
 
-    use_access = BooleanProperty(True)
-    """
-    Show access to files and directories.
-
-    :attr:`use_access` is an :class:`~kivy.properties.BooleanProperty`
-    and defaults to `True`.
+    :attr:`width_mult` is a :class:`~kivy.properties.NumericProperty`
+    and defaults to `1`.
     """
 
-    preview = BooleanProperty(False)
+    max_height = NumericProperty()
     """
-    Shows only image previews.
+    The menu will grow no bigger than this number. Set to 0 for no limit.
 
-    :attr:`preview` is an :class:`~kivy.properties.BooleanProperty`
-    and defaults to `False`.
-    """
-
-    show_hidden_files = BooleanProperty(False)
-    """
-    Shows hidden files.
-
-    :attr:`show_hidden_files` is an :class:`~kivy.properties.BooleanProperty`
-    and defaults to `False`.
+    :attr:`max_height` is a :class:`~kivy.properties.NumericProperty`
+    and defaults to `0`.
     """
 
-    sort_by = OptionProperty(
-        "name", options=["nothing", "name", "date", "size", "type"]
+    border_margin = NumericProperty("4dp")
+    """
+    Margin between Window border and menu.
+
+    :attr:`border_margin` is a :class:`~kivy.properties.NumericProperty`
+    and defaults to `4dp`.
+    """
+
+    ver_growth = OptionProperty(None, allownone=True, options=["up", "down"])
+    """
+    Where the menu will grow vertically to when opening. Set to None to let
+    the widget pick for you. Available options are: `'up'`, `'down'`.
+
+    :attr:`ver_growth` is a :class:`~kivy.properties.OptionProperty`
+    and defaults to `None`.
+    """
+
+    hor_growth = OptionProperty(None, allownone=True, options=["left", "right"])
+    """
+    Where the menu will grow horizontally to when opening. Set to None to let
+    the widget pick for you. Available options are: `'left'`, `'right'`.
+
+    :attr:`hor_growth` is a :class:`~kivy.properties.OptionProperty`
+    and defaults to `None`.
+    """
+
+    background_color = ListProperty()
+    """
+    Color of the background of the menu.
+
+    :attr:`background_color` is a :class:`~kivy.properties.ListProperty`
+    and defaults to `[]`.
+    """
+
+    opening_transition = StringProperty("out_cubic")
+    """
+    Type of animation for opening a menu window.
+
+    :attr:`opening_transition` is a :class:`~kivy.properties.StringProperty`
+    and defaults to `'out_cubic'`.
+    """
+
+    opening_time = NumericProperty(0.2)
+    """
+    Menu window opening animation time and you can set it to 0
+    if you don't want animation of menu opening.
+
+    :attr:`opening_time` is a :class:`~kivy.properties.NumericProperty`
+    and defaults to `0.2`.
+    """
+
+    caller = ObjectProperty()
+    """
+    The widget object that caller the menu window.
+
+    :attr:`caller` is a :class:`~kivy.properties.ObjectProperty`
+    and defaults to `None`.
+    """
+
+    position = OptionProperty("auto", options=["auto", "center", "bottom"])
+    """
+    Menu window position relative to parent element.
+    Available options are: `'auto'`, `'center'`, `'bottom'`.
+
+    :attr:`position` is a :class:`~kivy.properties.OptionProperty`
+    and defaults to `'auto'`.
+    """
+
+    radius = ListProperty(
+        [
+            dp(7),
+        ]
     )
     """
-    It can take the values 'nothing' 'name' 'date' 'size' 'type' - sorts files by option
-    By default, sort by name.
-    Available options are: `'nothing'`, `'name'`, `'date'`, `'size'`, `'type'`.
+    Menu radius.
 
-    :attr:`sort_by` is an :class:`~kivy.properties.OptionProperty`
-    and defaults to `name`.
+    :attr:`radius` is a :class:`~kivy.properties.ListProperty`
+    and defaults to `'[dp(7),]'`.
     """
 
-    sort_by_desc = BooleanProperty(False)
-    """
-    Sort by descending.
-
-    :attr:`sort_by_desc` is an :class:`~kivy.properties.BooleanProperty`
-    and defaults to `False`.
-    """
-
-    _window_manager = None
-    _window_manager_open = False
-    
-    files_type = StringProperty()
+    _start_coords = []
+    _calculate_complete = False
+    _calculate_process = False
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Window.bind(on_resize=self.check_position_caller)
+        Window.bind(on_maximize=self.set_menu_properties)
+        Window.bind(on_restore=self.set_menu_properties)
+        self.register_event_type("on_dismiss")
+        self.register_event_type("on_enter")
+        self.register_event_type("on_leave")
+        self.register_event_type("on_release")
+        self.menu = self.ids.md_menu
+        self.target_height = 0
 
-        toolbar_label = self.ids.toolbar.children[1].children[0]
-        toolbar_label.font_style = "Subtitle1"
+    def check_position_caller(self, instance, width, height):
+        self.set_menu_properties(0)
 
-        self.add_widget(
-            FloatButton(
-                callback=self.select_directory_on_press_button,
-                md_bg_color=self.theme_cls.primary_color,
-                icon=self.icon,
-            )
-        )
+    def set_bg_color_items(self, instance_selected_item):
+        """Called when a Hover Behavior event occurs for a list item.
 
-        if self.preview and self.files_type == 'images':
-            self.ext = [".png", ".jpg", ".jpeg"]
-        elif self.preview == False and self.files_type == 'audio':
-            self.ext = [".mp3", ".wav"]
-
-    def __sort_files(self, files):
-        def sort_by_name(files):
-            files.sort(key=locale.strxfrm)
-            files.sort(key=str.casefold)
-
-            return files
-
-        if self.sort_by == "name":
-            sorted_files = sort_by_name(files)
-
-        elif self.sort_by == "date":
-            _files = sort_by_name(files)
-            _sorted_files = [os.path.join(self.current_path, f) for f in _files]
-            _sorted_files.sort(key=os.path.getmtime, reverse=True)
-
-            sorted_files = [os.path.basename(f) for f in _sorted_files]
-
-        elif self.sort_by == "size":
-            _files = sort_by_name(files)
-            _sorted_files = [os.path.join(self.current_path, f) for f in _files]
-            _sorted_files.sort(key=os.path.getsize, reverse=True)
-
-            sorted_files = [os.path.basename(f) for f in _sorted_files]
-
-        elif self.sort_by == "type":
-            _files = sort_by_name(files)
-
-            sorted_files = sorted(
-                _files,
-                key=lambda f: (os.path.splitext(f)[1], os.path.splitext(f)[0]),
-            )
-
-        else:
-            sorted_files = files
-
-        if self.sort_by_desc:
-            sorted_files.reverse()
-
-        return sorted_files
-
-    def show(self, path):
-        """Forms the body of a directory tree.
-
-        :param path:
-            The path to the directory that will be opened in the file manager.
+        :type instance_selected_item: <kivymd.uix.menu.MDMenuItemIcon object>
         """
 
-        self.current_path = path
-        dirs, files = self.get_content()
-        manager_list = []
-
-        if dirs == [] and files == []:  # selected directory
-            pass
-        elif not dirs and not files:  # directory is unavailable
-            return
-
-        if self.preview:
-            for name_dir in self.__sort_files(dirs):
-                manager_list.append(
-                    {
-                        "viewclass": "BodyManagerWithPreview",
-                        "path": self.icon_folder,
-                        "realpath": os.path.join(path),
-                        "type": "folder",
-                        "name": name_dir,
-                        "events_callback": self.select_dir_or_file,
-                        "height": dp(150),
-                    }
-                )
-            for name_file in self.__sort_files(files):
-                if (
-                    os.path.splitext(os.path.join(path, name_file))[1]
-                    in self.ext
-                ):
-                    manager_list.append(
-                        {
-                            "viewclass": "BodyManagerWithPreview",
-                            "path": os.path.join(path, name_file),
-                            "name": name_file,
-                            "type": "files",
-                            "events_callback": self.select_dir_or_file,
-                            "height": dp(150),
-                        }
-                    )
-        else:
-            for name in self.__sort_files(dirs):
-                _path = os.path.join(path, name)
-                access_string = self.get_access_string(_path)
-                if "r" not in access_string:
-                    icon = "folder-lock"
+        if self.selected_color:
+            for item in self.menu.ids.box.children:
+                if item is not instance_selected_item:
+                    item.bg_color = (0, 0, 0, 0)
                 else:
-                    icon = "folder"
+                    instance_selected_item.bg_color = self.selected_color
 
-                manager_list.append(
-                    {
-                        "viewclass": "BodyManager",
-                        "path": _path,
-                        "icon": icon,
-                        "dir_or_file_name": name,
-                        "events_callback": self.select_dir_or_file,
-                    }
+    def create_menu_items(self):
+        """Creates menu items."""
+
+        for data in self.items:
+            if data.get("icon") and data.get("right_content_cls", None):
+
+                item = MDMenuItemIcon(
+                    text=data.get("text", ""),
+                    divider=data.get("divider", "Full"),
+                    _txt_top_pad=data.get("top_pad", "20dp"),
+                    _txt_bot_pad=data.get("bot_pad", "20dp"),
                 )
-            for name in self.__sort_files(files):
-                if self.ext and os.path.splitext(name)[1] not in self.ext:
-                    continue
 
-                manager_list.append(
-                    {
-                        "viewclass": "BodyManager",
-                        "path": name,
-                        "icon": "file-outline",
-                        "dir_or_file_name": os.path.split(name)[1],
-                        "events_callback": self.select_dir_or_file,
-                    }
+            elif data.get("icon"):
+                item = MDMenuItemIcon(
+                    text=data.get("text", ""),
+                    divider=data.get("divider", "Full"),
+                    _txt_top_pad=data.get("top_pad", "20dp"),
+                    _txt_bot_pad=data.get("bot_pad", "20dp"),
                 )
-        self.ids.rv.data = manager_list
 
-        if not self._window_manager:
-            self._window_manager = ModalView(
-                size_hint=(1, 1), auto_dismiss=False
-            )
-            self._window_manager.add_widget(self)
-        if not self._window_manager_open:
-            self._window_manager.open()
-            self._window_manager_open = True
-
-    def get_access_string(self, path):
-        access_string = ""
-        if self.use_access:
-            access_data = {"r": os.R_OK, "w": os.W_OK, "x": os.X_OK}
-            for access in access_data.keys():
-                access_string += (
-                    access if os.access(path, access_data[access]) else "-"
+            elif data.get("right_content_cls", None):
+                item = MDMenuItemRight(
+                    text=data.get("text", ""),
+                    divider=data.get("divider", "Full"),
+                    _txt_top_pad=data.get("top_pad", "20dp"),
+                    _txt_bot_pad=data.get("bot_pad", "20dp"),
                 )
-        return access_string
 
-    def get_content(self):
-        """Returns a list of the type [[Folder List], [file list]]."""
-
-        try:
-            files = []
-            dirs = []
-
-            for content in os.listdir(self.current_path):
-                if os.path.isdir(os.path.join(self.current_path, content)):
-                    if self.search == "all" or self.search == "dirs":
-                        if (not self.show_hidden_files) and (
-                            content.startswith(".")
-                        ):
-                            continue
-                        else:
-                            dirs.append(content)
-
-                else:
-                    if self.search == "all" or self.search == "files":
-                        if len(self.ext) != 0:
-                            try:
-                                files.append(
-                                    os.path.join(self.current_path, content)
-                                )
-                            except IndexError:
-                                pass
-                        else:
-                            if (
-                                not self.show_hidden_files
-                                and content.startswith(".")
-                            ):
-                                continue
-                            else:
-                                files.append(content)
-
-            time_sorted_list = sorted(files, key=os.path.getmtime)
-            time_sorted_list.reverse()
-
-            return dirs, time_sorted_list
-
-        except OSError:
-            return None, None
-
-    def close(self):
-        """Closes the file manager window."""
-
-        self._window_manager.dismiss()
-        self._window_manager_open = False
-
-    def select_dir_or_file(self, path):
-        """Called by tap on the name of the directory or file."""
-
-        if os.path.isfile(os.path.join(self.current_path, path)):
-            self.select_path(os.path.join(self.current_path, path))
-
-        else:
-            self.current_path = path
-            self.show(path)
-
-    def back(self):
-        """Returning to the branch down in the directory tree."""
-
-        path, end = os.path.split(self.current_path)
-
-        if not end:
-            self.close()
-            self.exit_manager(1)
-
-        else:
-            print(path)
-            if path == '/storage/emulated':
-                print('Break path')
             else:
-                self.show(path)
 
-    def select_directory_on_press_button(self, *args):
-        """Called when a click on a floating button."""
+                item = MDMenuItem(
+                    text=data.get("text", ""),
+                    divider=data.get("divider", "Full"),
+                    _txt_top_pad=data.get("top_pad", "20dp"),
+                    _txt_bot_pad=data.get("bot_pad", "20dp"),
+                )
 
-        self.select_path(self.current_path)
+            # Set height item.
+            if data.get("height", ""):
+                item.height = data.get("height")
+            # Compensate icon area by some left padding.
+            if not data.get("icon"):
+                item._txt_left_pad = data.get("left_pad", "32dp")
+            # Set left icon.
+            else:
+                item.icon = data.get("icon", "")
+            item.bind(on_release=lambda x=item: self.dispatch("on_release", x))
+            right_content_cls = data.get("right_content_cls", None)
+            # Set right content.
+            if isinstance(right_content_cls, RightContent):
+                item.ids._right_container.width = right_content_cls.width + dp(
+                    20
+                )
+                item.ids._right_container.padding = ("10dp", 0, 0, 0)
+                item.add_widget(right_content_cls)
+            else:
+                if "_right_container" in item.ids:
+                    item.ids._right_container.width = 0
+            self.menu.ids.box.add_widget(item)
 
+    def set_menu_properties(self, interval=0):
+        """Sets the size and position for the menu window."""
 
-Builder.load_string(ACTIVITY_MANAGER)
+        if self.caller:
+            if not self.menu.ids.box.children:
+                self.create_menu_items()
+            # We need to pick a starting point, see how big we need to be,
+            # and where to grow to.
+            self._start_coords = self.caller.to_window(
+                self.caller.center_x, self.caller.center_y
+            )
+            self.target_width = self.width_mult * m_res.STANDARD_INCREMENT
+
+            # If we're wider than the Window...
+            if self.target_width > Window.width:
+                # ...reduce our multiplier to max allowed.
+                self.target_width = (
+                    int(Window.width / m_res.STANDARD_INCREMENT)
+                    * m_res.STANDARD_INCREMENT
+                )
+
+            # Set the target_height of the menu depending on the size of
+            # each MDMenuItem or MDMenuItemIcon
+            self.target_height = 0
+            for item in self.menu.ids.box.children:
+                self.target_height += item.height
+
+            # If we're over max_height...
+            if 0 < self.max_height < self.target_height:
+                self.target_height = self.max_height
+
+            # Establish vertical growth direction.
+            if self.ver_growth is not None:
+                ver_growth = self.ver_growth
+            else:
+                # If there's enough space below us:
+                if (
+                    self.target_height
+                    <= self._start_coords[1] - self.border_margin
+                ):
+                    ver_growth = "down"
+                # if there's enough space above us:
+                elif (
+                    self.target_height
+                    < Window.height - self._start_coords[1] - self.border_margin
+                ):
+                    ver_growth = "up"
+                # Otherwise, let's pick the one with more space and adjust ourselves.
+                else:
+                    # If there"s more space below us:
+                    if (
+                        self._start_coords[1]
+                        >= Window.height - self._start_coords[1]
+                    ):
+                        ver_growth = "down"
+                        self.target_height = (
+                            self._start_coords[1] - self.border_margin
+                        )
+                    # If there's more space above us:
+                    else:
+                        ver_growth = "up"
+                        self.target_height = (
+                            Window.height
+                            - self._start_coords[1]
+                            - self.border_margin
+                        )
+
+            if self.hor_growth is not None:
+                hor_growth = self.hor_growth
+            else:
+                # If there's enough space to the right:
+                if (
+                    self.target_width
+                    <= Window.width - self._start_coords[0] - self.border_margin
+                ):
+                    hor_growth = "right"
+                # if there's enough space to the left:
+                elif (
+                    self.target_width
+                    < self._start_coords[0] - self.border_margin
+                ):
+                    hor_growth = "left"
+                # Otherwise, let's pick the one with more space and adjust ourselves.
+                else:
+                    # if there"s more space to the right:
+                    if (
+                        Window.width - self._start_coords[0]
+                        >= self._start_coords[0]
+                    ):
+                        hor_growth = "right"
+                        self.target_width = (
+                            Window.width
+                            - self._start_coords[0]
+                            - self.border_margin
+                        )
+                    # if there"s more space to the left:
+                    else:
+                        hor_growth = "left"
+                        self.target_width = (
+                            self._start_coords[0] - self.border_margin
+                        )
+
+            if ver_growth == "down":
+                self.tar_y = self._start_coords[1] - self.target_height
+            else:  # should always be "up"
+                self.tar_y = self._start_coords[1]
+
+            if hor_growth == "right":
+                self.tar_x = self._start_coords[0]
+            else:  # should always be "left"
+                self.tar_x = self._start_coords[0] - self.target_width
+            self._calculate_complete = True
+
+    def open(self):
+        """Animate the opening of a menu window."""
+
+        def open(interval):
+            if not self._calculate_complete:
+                return
+            if self.position == "auto":
+                self.menu.pos = self._start_coords
+                anim = Animation(
+                    x=self.tar_x,
+                    y=self.tar_y,
+                    width=self.target_width,
+                    height=self.target_height,
+                    duration=self.opening_time,
+                    opacity=1,
+                    transition=self.opening_transition,
+                )
+                anim.start(self.menu)
+            else:
+                if self.position == "center":
+                    self.menu.pos = (
+                        self._start_coords[0] - self.target_width / 2,
+                        self._start_coords[1] - self.target_height / 2,
+                    )
+                elif self.position == "bottom":
+                    self.menu.pos = (
+                        self._start_coords[0] - self.target_width / 2,
+                        self.caller.pos[1] - self.target_height,
+                    )
+                anim = Animation(
+                    width=self.target_width,
+                    height=self.target_height,
+                    duration=self.opening_time,
+                    opacity=1,
+                    transition=self.opening_transition,
+                )
+            anim.start(self.menu)
+            Window.add_widget(self)
+            Clock.unschedule(open)
+            self._calculate_process = False
+
+        self.set_menu_properties()
+        if not self._calculate_process:
+            self._calculate_process = True
+            Clock.schedule_interval(open, 0)
+
+    def on_touch_down(self, touch):
+        if not self.menu.collide_point(*touch.pos):
+            self.dispatch("on_dismiss")
+            return True
+        super().on_touch_down(touch)
+        return True
+
+    def on_touch_move(self, touch):
+        super().on_touch_move(touch)
+        return True
+
+    def on_touch_up(self, touch):
+        super().on_touch_up(touch)
+        return True
+
+    def on_enter(self, instance):
+        """Call when mouse enter the bbox of the item of menu."""
+
+    def on_leave(self, instance):
+        """Call when the mouse exit the item of menu."""
+
+    def on_release(self, *args):
+        """The method that will be called when you click menu items."""
+
+    def on_dismiss(self):
+        """Called when the menu is closed."""
+
+        Window.remove_widget(self)
+        self.menu.width = 0
+        self.menu.height = 0
+        self.menu.opacity = 0
+
+    def dismiss(self):
+        """Closes the menu."""
+
+        self.on_dismiss()
