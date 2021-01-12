@@ -970,7 +970,9 @@ Builder.load_string(
                             Line:
                                 width: 1.
                                 circle: (self.center_x, self.center_y, dp(50))
-                        on_release: app.theme_cls.theme_style = 'Light'
+                        on_release: 
+                            app.theme_changed()
+                            app.theme_cls.theme_style = 'Light'
                     MDIconButton:
                         size: dp(100), dp(100)
                         pos: self.pos
@@ -981,7 +983,9 @@ Builder.load_string(
                             Ellipse:
                                 size: self.size
                                 pos: self.pos
-                        on_release: app.theme_cls.theme_style = 'Dark'
+                        on_release: 
+                            app.theme_changed()
+                            app.theme_cls.theme_style = 'Dark'
 """
 )
 
