@@ -53,6 +53,7 @@ from kivy.logger import Logger
 Toast = autoclass("android.widget.Toast")
 context = autoclass("org.kivy.android.PythonActivity").mActivity
 
+
 @run_on_ui_thread
 def toast(text, length_long=False):
     global t

@@ -1359,6 +1359,7 @@ class MDFillRoundFlatIconButton(MDFillRoundFlatButton):
     def update_md_bg_color(self, instance, value):
         self._current_button_color = self.theme_cls.primary_color
 
+
 # SpeedDial classes
 
 

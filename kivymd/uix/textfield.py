@@ -355,6 +355,7 @@ from kivy.properties import (
     OptionProperty,
     StringProperty,
 )
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
@@ -362,7 +363,7 @@ from kivymd.font_definitions import theme_font_styles
 from kivymd.material_resources import DEVICE_TYPE
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.label import MDIcon
-from kivy.uix.behaviors import ButtonBehavior
+
 Builder.load_string(
     """
 #:import images_path kivymd.images_path
