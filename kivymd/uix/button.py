@@ -692,7 +692,7 @@ Builder.load_string(
     # Defaults to 56-by-56 and a background of the accent color according to
     # guidelines
     size: (dp(56), dp(56))
-    md_bg_color: root.theme_cls.accent_color
+    md_bg_color: root.theme_cls.primary_color
     theme_text_color: 'Custom'
     text_color: root.specific_text_color
 
