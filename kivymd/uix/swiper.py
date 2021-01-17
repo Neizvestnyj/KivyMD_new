@@ -199,6 +199,7 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.effects.dampedscroll import DampedScrollEffect
+from kivy.effects.scroll import ScrollEffect
 from kivy.event import EventDispatcher
 from kivy.lang.builder import Builder
 from kivy.properties import (
@@ -238,7 +239,7 @@ Builder.load_string(
 )
 
 
-class _ScrollViewHardStop(DampedScrollEffect):
+class _ScrollViewHardStop(ScrollEffect):
     def stop(self, val, t=None):
         return super().stop(val, t=0.01)
 
