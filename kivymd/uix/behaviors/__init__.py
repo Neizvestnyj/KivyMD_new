@@ -7,7 +7,7 @@ Modules and classes implementing various behaviors for buttons etc.
 
 # flake8: NOQA
 from .hover_behavior import HoverBehavior  # isort:skip
-from .backgroundcolorbehavior import (
+from .backgroundcolor_behavior import (
     BackgroundColorBehavior,
     SpecificBackgroundColorBehavior,
 )
