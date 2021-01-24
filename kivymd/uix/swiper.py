@@ -224,7 +224,7 @@ Builder.load_string(
     MDBoxLayout:
         id: anchor_scroll
         adaptive_width: True
-        padding: [root.items_spacing, 0 ]
+        padding: [dp(30), 0]
 
 
 <MDSwiperItem>
