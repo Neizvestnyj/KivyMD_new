@@ -355,7 +355,6 @@ from kivy.properties import (
     OptionProperty,
     StringProperty,
 )
-from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
@@ -619,7 +618,7 @@ class TextfieldLabel(ThemableBehavior, Label):
         self.font_size = sp(self.theme_cls.font_styles[self.font_style][1])
 
 
-class MDTextField(ThemableBehavior, ButtonBehavior, TextInput):
+class MDTextField(ThemableBehavior, TextInput):
     helper_text = StringProperty("This field is required")
     """
     Text for ``helper_text`` mode.
