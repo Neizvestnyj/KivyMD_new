@@ -453,6 +453,7 @@ from kivymd.uix.behaviors import (
     SpecificBackgroundColorBehavior,
 )
 from kivymd.uix.tooltip import MDTooltip
+from kivymd.uix.label import MDLabel
 
 Builder.load_string(
     """
@@ -700,6 +701,7 @@ Builder.load_string(
 <MDTextButton>
     size_hint: None, None
     size: self.texture_size
+    adaptive_size: True
     color:
         root.theme_cls.primary_color \
         if not len(root.custom_color) else root.custom_color
@@ -938,6 +940,7 @@ class BasePressedButton(BaseButton):
     Abstract base class for those button which fade to a background color on
     press.
     """
+    duration = NumericProperty(0.5)
 
     def on_touch_down(self, touch):
         if touch.is_mouse_scrolling:
@@ -950,7 +953,7 @@ class BasePressedButton(BaseButton):
             return False
         else:
             self.fade_bg = Animation(
-                duration=0.5, _current_button_color=self.md_bg_color_down
+                duration=self.duration, _current_button_color=self.md_bg_color_down
             )
             self.fade_bg.start(self)
             return super().on_touch_down(touch)
@@ -1011,6 +1014,9 @@ class BaseRaisedButton(CommonElevationBehavior, BaseButton):
             self.elevation_raised = self.elevation_normal + 6
         elif self.elevation_raised == 0:
             self.elevation_raised = 12
+        else:
+            self.elevation_normal = 0
+            self.elevation_raised = 0
         super().__init__(**kwargs)
         self.elevation_press_anim = Animation(
             elevation=self.elevation_raised, duration=0.2, t="out_quad"
@@ -1281,7 +1287,7 @@ class MDRoundFlatButton(MDFlatButton):
         self.bind(ripple_color=self._set_color, _ripple_rad=self._set_ellipse)
 
 
-class MDTextButton(ThemableBehavior, Button):
+class MDTextButton(ButtonBehavior, MDLabel):
     custom_color = ListProperty()
     """Custom user button color if ``rgba`` format.
 
