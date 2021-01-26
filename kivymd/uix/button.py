@@ -409,7 +409,6 @@ __all__ = (
     "MDTextButton",
     "MDFloatingActionButtonSpeedDial",
 )
-
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -452,12 +451,11 @@ from kivymd.uix.behaviors import (
     RectangularRippleBehavior,
     SpecificBackgroundColorBehavior,
 )
-from kivymd.uix.label import MDLabel
 from kivymd.uix.tooltip import MDTooltip
-
+from kivymd.uix.label import MDLabel
+from kivymd import images_path
 Builder.load_string(
-    """
-#:import images_path kivymd.images_path
+"""
 #:import md_icons kivymd.icon_definitions.md_icons
 
 
@@ -940,7 +938,6 @@ class BasePressedButton(BaseButton):
     Abstract base class for those button which fade to a background color on
     press.
     """
-
     duration = NumericProperty(0.5)
 
     def on_touch_down(self, touch):
@@ -954,8 +951,7 @@ class BasePressedButton(BaseButton):
             return False
         else:
             self.fade_bg = Animation(
-                duration=self.duration,
-                _current_button_color=self.md_bg_color_down,
+                duration=self.duration, _current_button_color=self.md_bg_color_down
             )
             self.fade_bg.start(self)
             return super().on_touch_down(touch)
