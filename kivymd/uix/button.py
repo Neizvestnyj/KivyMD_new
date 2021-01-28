@@ -698,12 +698,9 @@ Builder.load_string(
 
 
 <MDTextButton>
-    size_hint: None, None
-    size: self.texture_size
     adaptive_size: True
-    color:
-        root.theme_cls.primary_color \
-        if not len(root.custom_color) else root.custom_color
+    color: root.theme_cls.primary_color if not root.color else root.color
+    opacity: 1
 
 
 # SpeedDial classes
