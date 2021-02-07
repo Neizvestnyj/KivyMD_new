@@ -1,5 +1,5 @@
 # THIS FILE IS GENERATED FROM KIVYMD SETUP.PY
 __version__ = "0.104.2.dev0"
-__hash__ = "fe699b3e2f0a275a11cd997456a0ba800cbd4157"
-__short_hash__ = "fe699b3"
-__date__ = "2021-01-28"
+__hash__ = "90e6e5b862476f7b1933b9e128df9f84580bff36"
+__short_hash__ = "90e6e5b"
+__date__ = "2021-02-07"
