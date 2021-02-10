@@ -1160,6 +1160,15 @@ class MDTextField(ThemableBehavior, TextInput):
         if self.color_mode == "custom":
             self._update_colors(self.line_color_focus)
 
+    def text_down_anim(self):
+        self._anim_lbl_font_size(dp(38), sp(16))
+        Animation(
+            _line_blank_space_right_point=0,
+            _line_blank_space_left_point=0,
+            duration=0.2,
+            t="out_quad",
+        ).start(self)
+
     def on__hint_text(self, instance, value):
         pass
 
