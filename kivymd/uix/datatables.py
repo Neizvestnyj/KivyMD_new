@@ -787,7 +787,8 @@ class TableData(RecycleView):
                 self.cell_row_obj_dict[i] = cell_row_obj
 
             self.on_mouse_select(cell_row_obj)
-            cell_row_obj.ids.check.state = state
+            if cell_row_obj:
+                cell_row_obj.ids.check.state = state
 
     def check_all(self, state):
         """Checks if checkboxes of all rows are in the same state"""
@@ -877,9 +878,10 @@ class TableData(RecycleView):
         """Called on the ``on_enter`` event of the :class:`~CellRow` class."""
 
         if not self.pagination_menu_open:
-            if self.ids.row_controller.selected_row != instance.index:
-                self.ids.row_controller.selected_row = instance.index
-                self.ids.row_controller.select_current(self)
+            if instance is not None:
+                if self.ids.row_controller.selected_row != instance.index:
+                    self.ids.row_controller.selected_row = instance.index
+                    self.ids.row_controller.select_current(self)
 
     def on_rows_num(self, instance, value):
         if not self._to_value:
