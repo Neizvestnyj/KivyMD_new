@@ -64,6 +64,7 @@ Usage
 
 __all__ = ("MDDialog",)
 
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -83,7 +84,7 @@ from kivymd.uix.card import MDSeparator
 from kivymd.uix.list import BaseListItem
 
 Builder.load_string(
-    """
+"""
 #:import images_path kivymd.images_path
 
 
@@ -431,6 +432,13 @@ class MDDialog(BaseDialog):
     and defaults to `'alert'`.
     """
 
+    width_offset = NumericProperty(dp(48))
+    """
+    Dialog offset from device width.
+    :attr:`width_offset` is an :class:`~kivy.properties.NumericProperty`
+    and defaults to `dp(48)`.
+    """
+
     content_cls = ObjectProperty()
     """
     Custom content class.
@@ -510,12 +518,14 @@ class MDDialog(BaseDialog):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        if self.size_hint == [1, 1] and DEVICE_TYPE == "mobile":
+        if self.size_hint == [1, 1] and (
+                DEVICE_TYPE == "desktop" or DEVICE_TYPE == "tablet"
+        ):
             self.size_hint = (None, None)
-            self.width = dp(280)
-        elif self.size_hint == [1, 1] and DEVICE_TYPE == "desktop":
+            self.width = min(dp(560), Window.width - self.width_offset)
+        elif self.size_hint == [1, 1] and DEVICE_TYPE == "mobile":
             self.size_hint = (None, None)
-            self.width = dp(560)
+            self.width = min(dp(280), Window.width - self.width_offset)
 
         if not self.title:
             self._spacer_top = 0
@@ -525,6 +535,7 @@ class MDDialog(BaseDialog):
         else:
             self.create_buttons()
 
+        update_height = False
         if self.type in ("simple", "confirmation"):
             if self.type == "confirmation":
                 self.ids.spacer_top_box.add_widget(MDSeparator())
@@ -537,8 +548,15 @@ class MDDialog(BaseDialog):
                 self.ids.spacer_top_box.add_widget(self.content_cls)
                 self._spacer_top = self.content_cls.height + dp(24)
                 self.ids.spacer_top_box.padding = (0, "24dp", "16dp", 0)
+                update_height = True
         if self.type == "alert":
             self.ids.scroll.bar_width = 0
+
+        if update_height:
+            Clock.schedule_once(self.update_height)
+
+    def update_height(self, *_):
+        self._spacer_top = self.content_cls.height + dp(24)
 
     def on_open(self):
         # TODO: Add scrolling text.
