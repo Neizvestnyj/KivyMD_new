@@ -18,5 +18,5 @@ from .elevation import (
 )
 from .focus_behavior import FocusBehavior
 from .magic_behavior import MagicBehavior
-from .ripplebehavior import CircularRippleBehavior, RectangularRippleBehavior
+from .ripple_behavior import CircularRippleBehavior, RectangularRippleBehavior
 from .touch_behavior import TouchBehavior
