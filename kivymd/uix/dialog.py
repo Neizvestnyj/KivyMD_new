@@ -84,7 +84,7 @@ from kivymd.uix.card import MDSeparator
 from kivymd.uix.list import BaseListItem
 
 Builder.load_string(
-"""
+    """
 #:import images_path kivymd.images_path
 
 
@@ -519,7 +519,7 @@ class MDDialog(BaseDialog):
         super().__init__(**kwargs)
 
         if self.size_hint == [1, 1] and (
-                DEVICE_TYPE == "desktop" or DEVICE_TYPE == "tablet"
+            DEVICE_TYPE == "desktop" or DEVICE_TYPE == "tablet"
         ):
             self.size_hint = (None, None)
             self.width = min(dp(560), Window.width - self.width_offset)
